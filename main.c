@@ -10,20 +10,28 @@ typedef struct candidato {
 typedef struct universidade {
     int maxVagas; // A quantidade de vagas na universidade pode ser maior, menor ou igual a quantidade de aplicações
     int notaDeCorte;
-    int *lista; // Ordenam os alunos pela nota, dentre os que listaram interesse }
+    struct Node *lista; // Ordenam os alunos pela nota, dentre os que listaram interesse }
 } Universidade;
 
-Candidato *alocaCandidatos(int numberCan){
-  *candidatos = (Candidato*)malloc(numberCan * sizeof(**Candidato));
+struct Node {
+    Candidato *candidatoInscrito;
+    struct Node *next;
+};
 
-}
+// Candidato *alocaCandidatos(int numberCan){
+//   *candidatos = (Candidato*)malloc(numberCan * sizeof(**Candidato));
+//
+// }
 // https://stackoverflow.com/questions/41040440/returning-a-dynamically-allocated-array-of-structures-from-a-function-in-c
 Universidade *alocaUniversidades(int numberUni){
   Universidade *universidades = NULL;
-  *universidades = (Universidade*)malloc(numberUni * sizeof(**Universidade));
+  universidades = (Universidade*)malloc(numberUni * sizeof(Universidade));
   for (size_t i = 0; i < numberUni; i++) {
-
+       universidades[i].maxVagas = -1;
+       universidades[i].notaDeCorte = -1;
+       universidades[i].lista = NULL;
   }
+  return universidades;
 }
 
 
@@ -43,11 +51,11 @@ int main(int argc, char **argv){
   int numberUni;
   fscanf(filePointerUni, "%d", &numberUni);
   // Aloca memória para as universidades
+  Universidade *universidades = alocaUniversidades(numberUni);
 
-  alocaUniversidades(numberUni, &universidades);
   for (size_t i = 0; i < numberUni; i++) {
-    // fscanf(filePointerUni, "%d", &(*universidades)[i].maxVagas);
-    // fscanf(filePointerUni, "%d", &(*universidades)[i].notaDeCorte);
+    fscanf(filePointerUni, "%d", &universidades[i].maxVagas);
+    fscanf(filePointerUni, "%d", &universidades[i].notaDeCorte);
 
     // printf("%d\t%d\n", (*universidades)[i].maxVagas, (*universidades)[i].notaDeCorte);
   }
