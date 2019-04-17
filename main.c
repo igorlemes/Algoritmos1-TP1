@@ -2,44 +2,70 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct candidato {
-    int nota; //Ser ́a adotada como premissa que, quando outros aspectos forem iguais, os candidatos com menor identificador tera prioridade
+typedef struct node{
+	void* item;
+	struct node *next;
+} node;
+
+typedef struct candidate{
+    int grade; /*Ser ́a adotada como premissa que, quando outros aspectos forem
+		iguais, os candidates com menor identificador tera prioridade*/
     int numeroAplicacoes;
-    int *lista; // 0< Li≤ m por ordem de preferência (sem empates), nessa lista não deve haver aquelas que o aluno não quer estudar}
-} Candidato;
+    node *list; /* 0< Li≤ m por ordem de preferência (sem empates), nessa list
+		não deve haver aquelas que o aluno não quer estudar}*/
+} Candidate;
 
-typedef struct universidade {
-    int maxVagas; // A quantidade de vagas na universidade pode ser maior, menor ou igual a quantidade de aplicações
-    int notaDeCorte;
-    int *lista; // Ordenam os alunos pela nota, dentre os que listaram interesse }
-} Universidade;
+typedef struct university {
+    int maxVacancies; /* A quantidade de vagas na university pode ser maior,
+		menor ou igual a quantidade de aplicações */
+    int minimumGrade;
+    node *list; //Ordenam os alunos pela grade, dentre os que listram interesse
+} University ;
 
-struct Node {
-    Candidato matchedCandidato;
-    Universidade matchedUniversidade;
-    struct Node *next;
+struct Matched {
+    Candidate C;
+    University U;
 };
 
-Candidato *alocaCandidatos(int numberCan){
-  Candidato *candidatos = NULL;
-  candidatos = (Candidato*)malloc(numberCan * sizeof(Candidato));
-  for (size_t i = 0; i < numberCan; i++) {
-      candidatos[i].nota = -1;
-      candidatos[i].numeroAplicacoes = -1;
-      candidatos[i].lista = NULL;
-  }
-  return candidatos;
+node* new_node(void *item){
+	node *no = malloc(sizeof(node));
+	no->item = item;
+	no->next = NULL;
+	return no;
 }
-// https://stackoverflow.com/questions/41040440/returning-a-dynamically-allocated-array-of-structures-from-a-function-in-c
-Universidade *alocaUniversidades(int numberUni){
-  Universidade *universidades = NULL;
-  universidades = (Universidade*)malloc(numberUni * sizeof(Universidade));
-  for (size_t i = 0; i < numberUni; i++) {
-       universidades[i].maxVagas = -1;
-       universidades[i].notaDeCorte = -1;
-       universidades[i].lista = NULL;
+
+void insert(node **no, void *item){
+	node *n_node = new_node(item);
+	if (*no == NULL) {
+		*no = n_node;
+		return;
+	}
+	node *curr = *no;
+	while (curr->next != NULL)
+		curr = curr->next;
+	curr->next = n_node;
+}
+
+Candidate *alocateCandidates(int numberCan){
+  Candidate *candidates = NULL;
+  candidates = (Candidate*)malloc(numberCan * sizeof(Candidate));
+  for (size_t i = 0; i < numberCan; i++) {
+      candidates[i].grade = -1;
+      candidates[i].numeroAplicacoes = -1;
+      candidates[i].list = NULL;
   }
-  return universidades;
+  return candidates;
+}
+
+University  *alocateUniversities(int numberUni){
+  University  *universities = NULL;
+  universities = (University *)malloc(numberUni * sizeof(University ));
+  for (size_t i = 0; i < numberUni; i++) {
+       universities[i].maxVacancies = -1;
+       universities[i].minimumGrade = -1;
+       universities[i].list = NULL;
+  }
+  return universities;
 }
 
 FILE *fileOpener(char *arquivo){
@@ -51,40 +77,50 @@ FILE *fileOpener(char *arquivo){
   return filePointer;
 }
 
-Universidade *inicializaUniversidades(FILE *filePointerUni){
+University *initUniversities(FILE *filePointerUni){
   int numberUni;
   fscanf(filePointerUni, "%d", &numberUni);
-  // Aloca memória para as universidades
-  Universidade *universidades = alocaUniversidades(numberUni);
+  // Aloca memória para as universities
+  University  *universities = alocateUniversities(numberUni);
 
   for (size_t i = 0; i < numberUni; i++) {
-    fscanf(filePointerUni, "%d", &universidades[i].maxVagas);
-    fscanf(filePointerUni, "%d", &universidades[i].notaDeCorte);
+    fscanf(filePointerUni, "%d", &universities[i].maxVacancies);
+    fscanf(filePointerUni, "%d", &universities[i].minimumGrade);
   }
   fclose(filePointerUni);
-  return universidades;
+  return universities;
 }
 
-Candidato *inicializaCandidatos(FILE *filePointerCan){
+Candidate *initCandidates(FILE *filePointerCan, University *universities){
   int numberCan;
   fscanf(filePointerCan, "%d", &numberCan);
-  // // Aloca memória para os candidatos
-  Candidato *candidatos = alocaCandidatos(numberCan);
+  // // Aloca memória para os candidates
+  Candidate *candidates = alocateCandidates(numberCan);
+	int aux;
   for (size_t i = 0; i < numberCan; i++) {
-    fscanf(filePointerCan, "%d", &candidatos[i].numeroAplicacoes);
-    fscanf(filePointerCan, "%d", &candidatos[i].nota);
-    candidatos[i].lista = malloc(candidatos[i].numeroAplicacoes * sizeof(int));
-    for (size_t j = 0; j < candidatos[i].numeroAplicacoes; j++) {
-      fscanf(filePointerCan, "%d", &candidatos[i].lista[j]);
+    fscanf(filePointerCan, "%d", &candidates[i].numeroAplicacoes);
+    fscanf(filePointerCan, "%d", &candidates[i].grade);
+    for (size_t j = 0; j < candidates[i].numeroAplicacoes; j++) {
+			fscanf(filePointerCan, "%d", &aux);
+			insert(&candidates[i].list, &universities[aux]);
     }
   }
   fclose(filePointerCan);
-  return candidatos;
+  return candidates;
+}
+
+void printCandidates(Candidate *candidates){
 
 }
-int main(int argc, char **argv){
-  Universidade *universidades = inicializaUniversidades(fileOpener(argv[1]));
-  Candidato *candidatos = inicializaCandidatos(fileOpener(argv[2]));
+void printUniversities(){}
 
+// node *matchedList(){
+//
+//
+// }
+
+int main(int argc, char **argv){
+  University *universities = initUniversities(fileOpener(argv[1]));
+  Candidate *candidates = initCandidates(fileOpener(argv[2]), universities);
 
 }
