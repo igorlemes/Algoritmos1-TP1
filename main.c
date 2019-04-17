@@ -10,12 +10,14 @@ typedef struct node{
 typedef struct candidate{
     int grade; /*Ser ́a adotada como premissa que, quando outros aspectos forem
 		iguais, os candidates com menor identificador tera prioridade*/
-    int numeroAplicacoes;
+		int n;
+		int numeroAplicacoes;
     node *list; /* 0< Li≤ m por ordem de preferência (sem empates), nessa list
 		não deve haver aquelas que o aluno não quer estudar}*/
 } Candidate;
 
 typedef struct university {
+		int m;
     int maxVacancies; /* A quantidade de vagas na university pode ser maior,
 		menor ou igual a quantidade de aplicações */
     int minimumGrade;
@@ -50,6 +52,7 @@ Candidate *alocateCandidates(int numberCan){
   Candidate *candidates = NULL;
   candidates = (Candidate*)malloc(numberCan * sizeof(Candidate));
   for (size_t i = 0; i < numberCan; i++) {
+			candidates[i].n = numberCan;
       candidates[i].grade = -1;
       candidates[i].numeroAplicacoes = -1;
       candidates[i].list = NULL;
@@ -61,6 +64,7 @@ University  *alocateUniversities(int numberUni){
   University  *universities = NULL;
   universities = (University *)malloc(numberUni * sizeof(University ));
   for (size_t i = 0; i < numberUni; i++) {
+			 universities[i].m = numberUni;
        universities[i].maxVacancies = -1;
        universities[i].minimumGrade = -1;
        universities[i].list = NULL;
@@ -110,10 +114,37 @@ Candidate *initCandidates(FILE *filePointerCan, University *universities){
 }
 
 void printCandidates(Candidate *candidates){
-
+	for (size_t i = 0; i < candidates[0].n; i++) {
+		printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n", i ,candidates[i].grade, candidates[i].numeroAplicacoes);
+	}
 }
-void printUniversities(){}
+void printUniversities(University *universities){
+	for (size_t i = 0; i < universities[0].m; i++) {
+		printf("University %d:\tMinimum Grade: %d\tVacancies: %d\n", i ,universities[i].minimumGrade, universities[i].maxVacancies);
+	}
+}
 
+void freeNode(node *no){
+	while (no != NULL){
+		node *curr = no;
+		no = no->next;
+		free(curr);
+	}
+}
+
+void freeCandidates(Candidate *candidates){
+	for (size_t i = 0; i < candidates[0].n; i++) {
+		freeNode(candidates[i].list);
+	}
+	free(candidates);
+}
+
+void freeUniversities(University *universities){
+	for (size_t i = 0; i < universities[0].m; i++) {
+		freeNode(universities[i].list);
+	}
+	free(universities);
+}
 // node *matchedList(){
 //
 //
@@ -122,5 +153,11 @@ void printUniversities(){}
 int main(int argc, char **argv){
   University *universities = initUniversities(fileOpener(argv[1]));
   Candidate *candidates = initCandidates(fileOpener(argv[2]), universities);
+
+	printCandidates(candidates);
+	printUniversities(universities);
+
+	freeCandidates(candidates);
+	freeUniversities(universities);
 
 }
