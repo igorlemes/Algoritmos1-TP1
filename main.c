@@ -11,7 +11,7 @@ typedef struct candidate{
 		int id;
     int n;
 		int grade;
-    int numeroAplicacoes;
+    int numberOfApplications;
     node *list;
 } Candidate;
 
@@ -20,6 +20,7 @@ typedef struct university {
     int m;
     int maxVacancies;
     int minimumGrade;
+    int numberOfApplications;
     node *list;
 } University ;
 
@@ -54,7 +55,7 @@ Candidate *alocateCandidates(int numberCan){
 			candidates[i].id = -1;
       candidates[i].n = numberCan;
       candidates[i].grade = -1;
-      candidates[i].numeroAplicacoes = -1;
+      candidates[i].numberOfApplications = -1;
       candidates[i].list = NULL;
   }
   return candidates;
@@ -68,6 +69,7 @@ University  *alocateUniversities(int numberUni){
 			 universities[i].m = numberUni;
        universities[i].maxVacancies = -1;
        universities[i].minimumGrade = -1;
+       universities[i].numberOfApplications = 0;
        universities[i].list = NULL;
   }
   return universities;
@@ -105,9 +107,9 @@ Candidate *initCandidates(FILE *filePointerCan, University *universities){
 	int aux;
   for (int i = 0; i < numberCan; i++) {
     candidates[i].id = i;
-    fscanf(filePointerCan, "%d", &candidates[i].numeroAplicacoes);
+    fscanf(filePointerCan, "%d", &candidates[i].numberOfApplications);
     fscanf(filePointerCan, "%d", &candidates[i].grade);
-    for (int j = 0; j < candidates[i].numeroAplicacoes; j++) {
+    for (int j = 0; j < candidates[i].numberOfApplications; j++) {
 			fscanf(filePointerCan, "%d", &aux);
 			insert(&candidates[i].list, &universities[aux-1]);
     }
@@ -125,7 +127,7 @@ void printUniversity(void *ptr){
 void printCandidate(void *ptr){
   Candidate *c = ptr;
   printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n", 
-    c->id, c->grade, c->numeroAplicacoes);  
+    c->id, c->grade, c->numberOfApplications);  
 }
 
 void printList(node *list, void (*printFunction)(void *)){
@@ -139,13 +141,15 @@ void printList(node *list, void (*printFunction)(void *)){
 
 void printCandidates(Candidate *candidates){
 	for (int i = 0; i < candidates[0].n; i++) {
-		printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n", candidates[i].id, candidates[i].grade, candidates[i].numeroAplicacoes);
+		printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n", 
+      candidates[i].id, candidates[i].grade, candidates[i].numberOfApplications);
 	  printList(candidates[i].list, &printUniversity);
   }
 }
 void printUniversities(University *universities){
 	for (int i = 0; i < universities[0].m; i++) {
-		printf("University %d:\tMinimum Grade: %d\tVacancies: %d\n", universities[i].id,universities[i].minimumGrade, universities[i].maxVacancies);
+		printf("University %d:\tMinimum Grade: %d\tVacancies: %d\tNumber of Aplications: %d\n", 
+      universities[i].id,universities[i].minimumGrade, universities[i].maxVacancies, universities[i].numberOfApplications);
 	  printList(universities[i].list, &printCandidate);
   }
 }
@@ -177,15 +181,27 @@ int isInList(node *list, University *university){
   node *curr = list;
   
   while(1){
-    if(list == NULL){
-      free(curr);
+    if(curr == NULL){
       return 0;
     } else if (curr->item == university){
-      free(curr);
       return 1;
     }
     curr = curr->next;
   }
+}
+
+int compareGrades(const void *a, const void *b){
+  Candidate *c = a;
+  Candidate *d = b;
+  if ( c->grade > d->grade ) return -1;
+  if ( c->grade == d->grade){
+    if(c->id > d->id){
+      return -1;
+    } else if (c->id < d->id){
+      return 1;
+    }
+  }
+  if ( c->grade < d->grade ) return 1;
 }
 
 void createCandidatesList(University *universities, Candidate *candidates){
@@ -194,17 +210,21 @@ void createCandidatesList(University *universities, Candidate *candidates){
       if(isInList(candidates[i].list, &universities[j]) && 
         candidates[i].grade >= universities[j].minimumGrade){
         insert(&universities[j].list, &candidates[i]);
+        universities[j].numberOfApplications++; 
       }
     }
   }
+  qsort (universities->list, universities->numberOfApplications, sizeof(Candidate), compareGrades);  
 }
+
 
 int main(int argc, char **argv){
   University *universities = initUniversities(fileOpener(argv[1]));
   Candidate *candidates = initCandidates(fileOpener(argv[2]), universities);
-  // createCandidatesList(universities, candidates);
+  createCandidatesList(universities, candidates);
 
 	printCandidates(candidates);
+  printf("\n");
 	printUniversities(universities);
 
 	freeCandidates(candidates);
