@@ -1,7 +1,8 @@
-#inlcude "candidate.h"
+#include "candidate.h"
+#include "types.h"
 
-Candidate *alocateCandidates(int numberCan){
-  Candidate *candidates = NULL;
+struct candidate *alocateCandidates(int numberCan){
+  struct candidate *candidates = NULL;
   candidates = (Candidate*)malloc(numberCan * sizeof(Candidate));
   for (int i = 0; i < numberCan; i++) {
 			candidates[i].id = -1;
@@ -13,11 +14,11 @@ Candidate *alocateCandidates(int numberCan){
   return candidates;
 }
 
-Candidate *initCandidates(FILE *filePointerCan, University *universities){
+struct candidate *initCandidates(FILE *filePointerCan, University *universities){
   int numberCan;
   fscanf(filePointerCan, "%d", &numberCan);
   // // Aloca memória para os candidates
-  Candidate *candidates = alocateCandidates(numberCan);
+  struct candidate *candidates = alocateCandidates(numberCan);
 	int aux;
   for (int i = 0; i < numberCan; i++) {
     candidates[i].id = i;
@@ -33,29 +34,29 @@ Candidate *initCandidates(FILE *filePointerCan, University *universities){
 }
 
 void printCandidate(void *ptr){
-  Candidate *c = ptr;
-  printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n",
+  struct candidate *c = ptr;
+  printf("struct candidate %d:\tGrade: %d\tNumber of Aplications: %d\n",
     c->id, c->grade, c->numberOfApplications);
 }
 
-void printCandidates(Candidate *candidates){
+void printCandidates(struct candidate *candidates){
 	for (int i = 0; i < candidates[0].n; i++) {
-		printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n",
+		printf("struct candidate %d:\tGrade: %d\tNumber of Aplications: %d\n",
       candidates[i].id, candidates[i].grade, candidates[i].numberOfApplications);
 	  printList(candidates[i].list, &printUniversity);
   }
 }
 
-void freeCandidates(Candidate *candidates){
+void freeCandidates(struct candidate *candidates){
 	for (int i = 0; i < candidates[0].n; i++) {
 		freeNode(candidates[i].list);
 	}
 	free(candidates);
 }
 
-int compareGrades(const void *a, const void *b){
-  Candidate *c = a;
-  Candidate *d = b;
+int compareGrades(void *a, void *b){
+  struct candidate *c = a;
+  struct candidate *d = b;
   if ( c->grade > d->grade ) return -1;
   if ( c->grade == d->grade){
     if(c->id > d->id){

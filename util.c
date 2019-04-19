@@ -1,4 +1,5 @@
 #include "util.h"
+#include "types.h"
 
 node* new_node(void *item){
 	node *no = malloc(sizeof(node));
@@ -56,3 +57,19 @@ int isMatched(node *matchedList, void *ptr){
   }
 	return matched;
 }
+
+// node *stableMatching(){
+//     // Inicialize todos os h ∈ H e m ∈ M como solteiros
+// 		node *M;
+//     while(some university U is unmatched and hasn't proposed to every candidate){
+//         c = primeiro candidato na lista de U ao qual U ainda não propôs
+//         Se m esta disponivel
+//             (h, m) começam a namorar
+//         Senao (h', m) já namoram
+//             Se m prefere o h do que o h'
+//                 h' fica solteiro
+//                 (h, m) começam a namorar
+//             Senao
+//                 (h', m) continuam namorando
+//     }
+// }

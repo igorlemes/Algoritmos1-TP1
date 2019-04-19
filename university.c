@@ -1,4 +1,5 @@
 #include "university.h"
+#include "types.h"
 
 University  *alocateUniversities(int numberUni){
   University  *universities = NULL;

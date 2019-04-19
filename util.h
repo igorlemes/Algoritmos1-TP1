@@ -4,24 +4,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "candidate.h"
 #include "university.h"
+#include "candidate.h"
 
-typedef struct node{
+struct node{
 	void* item;
 	struct node *next;
-} node;
+};
 
 struct Matched {
     Candidate *C;
     University *U;
 };
 
-node* new_node(void *item);
-void insert(node **no, void *item);
+struct node *new_node(void *item);
+void insert(struct node **no, void *item);
 FILE *fileOpener(char *arquivo);
-void printList(node *list, void (*printFunction)(void *));
-void freeNode(node *no);
-int isMatched(node *matchedList, void *ptr);
+void printList(struct node *list, void (*printFunction)(void *));
+void freeNode(struct node *no);
+int isMatched(struct node *matchedList, void *ptr);
 
 #endif // UTIL_H_INCLUDED

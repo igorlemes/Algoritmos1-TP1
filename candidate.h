@@ -4,22 +4,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "university.h"
 #include "util.h"
+#include "university.h"
 
-typedef struct candidate{
+struct candidate{
 		int id;
     int n;
 		int grade;
     int numberOfApplications;
     node *list;
-} Candidate;
+};
 
-Candidate *alocateCandidates(int numberCan);
-Candidate *initCandidates(FILE *filePointerCan, University *universities);
+struct candidate* alocateCandidates(int numberCan);
+struct candidate* initCandidates(FILE *filePointerCan, University *universities);
 void printCandidate(void *ptr);
-void printCandidates(Candidate *candidates);
-void freeCandidates(Candidate *candidates);
-int compareGrades(const void *a, const void *b);
+void printCandidates(struct candidate* candidates);
+void freeCandidates(struct candidate* candidates);
+int compareGrades(void *a, void *b);
 
 #endif //CANDIDATE_H_INCLUDED
