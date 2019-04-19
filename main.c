@@ -7,26 +7,9 @@ typedef struct node{
 	struct node *next;
 } node;
 
-typedef struct candidate{
-		int id;
-    int n;
-		int grade;
-    int numberOfApplications;
-    node *list;
-} Candidate;
-
-typedef struct university {
-		int id;
-    int m;
-    int maxVacancies;
-    int minimumGrade;
-    int numberOfApplications;
-    node *list;
-} University ;
-
 struct Matched {
-    Candidate C;
-    University U;
+    Candidate *C;
+    University *U;
 };
 
 node* new_node(void *item){
@@ -48,32 +31,6 @@ void insert(node **no, void *item){
 	curr->next = n_node;
 }
 
-Candidate *alocateCandidates(int numberCan){
-  Candidate *candidates = NULL;
-  candidates = (Candidate*)malloc(numberCan * sizeof(Candidate));
-  for (int i = 0; i < numberCan; i++) {
-			candidates[i].id = -1;
-      candidates[i].n = numberCan;
-      candidates[i].grade = -1;
-      candidates[i].numberOfApplications = -1;
-      candidates[i].list = NULL;
-  }
-  return candidates;
-}
-
-University  *alocateUniversities(int numberUni){
-  University  *universities = NULL;
-  universities = (University *)malloc(numberUni * sizeof(University));
-  for (int i = 0; i < numberUni; i++) {
-       universities[i].id = -1;
-			 universities[i].m = numberUni;
-       universities[i].maxVacancies = -1;
-       universities[i].minimumGrade = -1;
-       universities[i].numberOfApplications = 0;
-       universities[i].list = NULL;
-  }
-  return universities;
-}
 
 FILE *fileOpener(char *arquivo){
   FILE *filePointer;
@@ -84,52 +41,6 @@ FILE *fileOpener(char *arquivo){
   return filePointer;
 }
 
-University *initUniversities(FILE *filePointerUni){
-  int numberUni;
-  fscanf(filePointerUni, "%d", &numberUni);
-  // Aloca memória para as universities
-  University  *universities = alocateUniversities(numberUni);
-
-  for (int i = 0; i < numberUni; i++) {
-    universities[i].id = i;
-    fscanf(filePointerUni, "%d", &universities[i].maxVacancies);
-    fscanf(filePointerUni, "%d", &universities[i].minimumGrade);
-  }
-  fclose(filePointerUni);
-  return universities;
-}
-
-Candidate *initCandidates(FILE *filePointerCan, University *universities){
-  int numberCan;
-  fscanf(filePointerCan, "%d", &numberCan);
-  // // Aloca memória para os candidates
-  Candidate *candidates = alocateCandidates(numberCan);
-	int aux;
-  for (int i = 0; i < numberCan; i++) {
-    candidates[i].id = i;
-    fscanf(filePointerCan, "%d", &candidates[i].numberOfApplications);
-    fscanf(filePointerCan, "%d", &candidates[i].grade);
-    for (int j = 0; j < candidates[i].numberOfApplications; j++) {
-			fscanf(filePointerCan, "%d", &aux);
-			insert(&candidates[i].list, &universities[aux-1]);
-    }
-  }
-  fclose(filePointerCan);
-  return candidates;
-}
-
-void printUniversity(void *ptr){
-  University *u = ptr;
-  printf("University: %d\tMinimum Grade: %d\tVacancies: %d\n",
-    u->id, u->minimumGrade, u->maxVacancies);
-}
-
-void printCandidate(void *ptr){
-  Candidate *c = ptr;
-  printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n", 
-    c->id, c->grade, c->numberOfApplications);  
-}
-
 void printList(node *list, void (*printFunction)(void *)){
   node *curr = list;
   while (curr != NULL){
@@ -137,21 +48,6 @@ void printList(node *list, void (*printFunction)(void *)){
     curr = curr->next;
   }
   free(curr);
-}
-
-void printCandidates(Candidate *candidates){
-	for (int i = 0; i < candidates[0].n; i++) {
-		printf("Candidate %d:\tGrade: %d\tNumber of Aplications: %d\n", 
-      candidates[i].id, candidates[i].grade, candidates[i].numberOfApplications);
-	  printList(candidates[i].list, &printUniversity);
-  }
-}
-void printUniversities(University *universities){
-	for (int i = 0; i < universities[0].m; i++) {
-		printf("University %d:\tMinimum Grade: %d\tVacancies: %d\tNumber of Aplications: %d\n", 
-      universities[i].id,universities[i].minimumGrade, universities[i].maxVacancies, universities[i].numberOfApplications);
-	  printList(universities[i].list, &printCandidate);
-  }
 }
 
 void freeNode(node *no){
@@ -179,7 +75,7 @@ void freeUniversities(University *universities){
 int isInList(node *list, University *university){
   /*verifica se a universidade está na lista passada*/
   node *curr = list;
-  
+
   while(1){
     if(curr == NULL){
       return 0;
@@ -207,16 +103,52 @@ int compareGrades(const void *a, const void *b){
 void createCandidatesList(University *universities, Candidate *candidates){
   for (int i = 0; i < candidates[0].n; ++i){
     for (int j = 0; j < universities[0].m; ++j){
-      if(isInList(candidates[i].list, &universities[j]) && 
+      if(isInList(candidates[i].list, &universities[j]) &&
         candidates[i].grade >= universities[j].minimumGrade){
         insert(&universities[j].list, &candidates[i]);
-        universities[j].numberOfApplications++; 
+        universities[j].numberOfApplications++;
       }
     }
   }
-  qsort (universities->list, universities->numberOfApplications, sizeof(Candidate), compareGrades);  
+  qsort (universities->list, universities->numberOfApplications,
+		sizeof(Candidate), compareGrades);
 }
 
+node *stableMatching(){
+    // Inicialize todos os h ∈ H e m ∈ M como solteiros
+		node *M;
+    while(some university U is unmatched and hasn't proposed to every candidate){
+        c = primeiro candidato na lista de U ao qual U ainda não propôs
+        Se m esta disponivel
+            (h, m) começam a namorar
+        Senao (h', m) já namoram
+            Se m prefere o h do que o h'
+                h' fica solteiro
+                (h, m) começam a namorar
+            Senao
+                (h', m) continuam namorando
+    }
+}
+
+int isMatched(node *matchedList, void *ptr){
+	node *currMatchedList = matchedList;
+	int matched = 0;
+  while(currMatchedList != NULL){
+    if(currMatchedList->item->U == ptr || currMatchedList->item->C == ptr){
+      matched++;
+		}
+    currMatchedList = currMatchedList->next;
+  }
+	return matched;
+}
+
+int someUniversityisAvailable(node *matchedList, University *universities){
+	for (size_t i = 0; i < universities[0].m; i++) {
+		if(universities[i].numberOfApplications >
+			isMatched(matchedList, &universities[i])) return 1;
+	}
+	return 0;
+}
 
 int main(int argc, char **argv){
   University *universities = initUniversities(fileOpener(argv[1]));
