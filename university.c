@@ -44,3 +44,46 @@ void printUniversities(University *universities){
 	  printList(universities[i].list, &printCandidate);
   }
 }
+
+void freeUniversities(University *universities){
+	for (int i = 0; i < universities[0].m; i++) {
+		freeNode(universities[i].list);
+	}
+	free(universities);
+}
+
+void createCandidatesList(University *universities, Candidate *candidates){
+  for (int i = 0; i < candidates[0].n; ++i){
+    for (int j = 0; j < universities[0].m; ++j){
+      if(isInList(candidates[i].list, &universities[j]) &&
+        candidates[i].grade >= universities[j].minimumGrade){
+        insert(&universities[j].list, &candidates[i]);
+        universities[j].numberOfApplications++;
+      }
+    }
+  }
+  qsort (universities->list, universities->numberOfApplications,
+		sizeof(Candidate), compareGrades);
+}
+
+int someUniversityisAvailable(node *matchedList, University *universities){
+	for (size_t i = 0; i < universities[0].m; i++) {
+		if(universities[i].numberOfApplications >
+			isMatched(matchedList, &universities[i])) return 1;
+	}
+	return 0;
+}
+
+int isInList(node *list, University *university){
+  /*verifica se a universidade está na lista passada*/
+  node *curr = list;
+
+  while(1){
+    if(curr == NULL){
+      return 0;
+    } else if (curr->item == university){
+      return 1;
+    }
+    curr = curr->next;
+  }
+}

@@ -1,5 +1,4 @@
 #inlcude "candidate.h"
-#include "university.h"
 
 Candidate *alocateCandidates(int numberCan){
   Candidate *candidates = NULL;
@@ -45,4 +44,25 @@ void printCandidates(Candidate *candidates){
       candidates[i].id, candidates[i].grade, candidates[i].numberOfApplications);
 	  printList(candidates[i].list, &printUniversity);
   }
+}
+
+void freeCandidates(Candidate *candidates){
+	for (int i = 0; i < candidates[0].n; i++) {
+		freeNode(candidates[i].list);
+	}
+	free(candidates);
+}
+
+int compareGrades(const void *a, const void *b){
+  Candidate *c = a;
+  Candidate *d = b;
+  if ( c->grade > d->grade ) return -1;
+  if ( c->grade == d->grade){
+    if(c->id > d->id){
+      return -1;
+    } else if (c->id < d->id){
+      return 1;
+    }
+  }
+  if ( c->grade < d->grade ) return 1;
 }

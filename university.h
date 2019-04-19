@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "candidate.h"
+#include "util.h"
 
 typedef struct university {
 		int id;
@@ -18,3 +20,9 @@ University  *alocateUniversities(int numberUni);
 University *initUniversities(FILE *filePointerUni);
 void printUniversity(void *ptr);
 void printUniversities(University *universities);
+void freeUniversities(University *universities);
+void createCandidatesList(University *universities, Candidate *candidates);
+int someUniversityisAvailable(node *matchedList, University *universities);
+int isInList(node *list, University *university);
+
+#endif // UNIVERSITY_H_INCLUDED
